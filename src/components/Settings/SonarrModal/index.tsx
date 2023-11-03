@@ -143,6 +143,24 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
     activeLanguageProfileId: Yup.number().required(
       intl.formatMessage(messages.validationLanguageProfileRequired)
     ),
+    activeAnimeRootFolder: Yup.string().when('isAnime', {
+      is: true,
+      then: Yup.string().required(
+        intl.formatMessage(messages.validationRootFolderRequired)
+      ),
+    }),
+    activeAnimeProfileId: Yup.string().when('isAnime', {
+      is: true,
+      then: Yup.string().required(
+        intl.formatMessage(messages.validationProfileRequired)
+      ),
+    }),
+    activeAnimeLanguageProfileId: Yup.string().when('isAnime', {
+      is: true,
+      then: Yup.string().required(
+        intl.formatMessage(messages.validationLanguageProfileRequired)
+      ),
+    }),
     externalUrl: Yup.string()
       .url(intl.formatMessage(messages.validationApplicationUrl))
       .test(
