@@ -173,28 +173,17 @@ const AdvancedRequester = ({
     if (serverData) {
       const defaultProfile = serverData.profiles.find(
         (profile) =>
-          profile.id ===
-          (isAnime && serverData.server.activeAnimeProfileId
-            ? serverData.server.activeAnimeProfileId
-            : serverData.server.activeProfileId)
+          profile.id === serverData.server.activeProfileId
       );
       const defaultFolder = serverData.rootFolders.find(
         (folder) =>
-          folder.path ===
-          (isAnime && serverData.server.activeAnimeDirectory
-            ? serverData.server.activeAnimeDirectory
-            : serverData.server.activeDirectory)
+          folder.path === serverData.server.activeDirectory
       );
       const defaultLanguage = serverData.languageProfiles?.find(
         (language) =>
-          language.id ===
-          (isAnime && serverData.server.activeAnimeLanguageProfileId
-            ? serverData.server.activeAnimeLanguageProfileId
-            : serverData.server.activeLanguageProfileId)
+          language.id === serverData.server.activeLanguageProfileId
       );
-      const defaultTags = isAnime
-        ? serverData.server.activeAnimeTags
-        : serverData.server.activeTags;
+      const defaultTags = serverData.server.activeTags;
 
       const applyOverrides =
         defaultOverrides &&
@@ -378,17 +367,7 @@ const AdvancedRequester = ({
                         key={`profile-list${profile.id}`}
                         value={profile.id}
                       >
-                        {isAnime &&
-                        serverData.server.activeAnimeProfileId === profile.id
-                          ? intl.formatMessage(messages.default, {
-                              name: profile.name,
-                            })
-                          : !isAnime &&
-                            serverData.server.activeProfileId === profile.id
-                          ? intl.formatMessage(messages.default, {
-                              name: profile.name,
-                            })
-                          : profile.name}
+                        {profile.name}
                       </option>
                     ))}
                 </select>
@@ -422,23 +401,7 @@ const AdvancedRequester = ({
                         key={`folder-list${folder.id}`}
                         value={folder.path}
                       >
-                        {isAnime &&
-                        serverData.server.activeAnimeDirectory === folder.path
-                          ? intl.formatMessage(messages.default, {
-                              name: intl.formatMessage(messages.folder, {
-                                path: folder.path,
-                                space: formatBytes(folder.freeSpace ?? 0),
-                              }),
-                            })
-                          : !isAnime &&
-                            serverData.server.activeDirectory === folder.path
-                          ? intl.formatMessage(messages.default, {
-                              name: intl.formatMessage(messages.folder, {
-                                path: folder.path,
-                                space: formatBytes(folder.freeSpace ?? 0),
-                              }),
-                            })
-                          : intl.formatMessage(messages.folder, {
+                        {intl.formatMessage(messages.folder, {
                               path: folder.path,
                               space: formatBytes(folder.freeSpace ?? 0),
                             })}
@@ -480,19 +443,7 @@ const AdvancedRequester = ({
                           key={`folder-list${language.id}`}
                           value={language.id}
                         >
-                          {isAnime &&
-                          serverData.server.activeAnimeLanguageProfileId ===
-                            language.id
-                            ? intl.formatMessage(messages.default, {
-                                name: language.name,
-                              })
-                            : !isAnime &&
-                              serverData.server.activeLanguageProfileId ===
-                                language.id
-                            ? intl.formatMessage(messages.default, {
-                                name: language.name,
-                              })
-                            : language.name}
+                          {language.name}
                         </option>
                       ))}
                   </select>

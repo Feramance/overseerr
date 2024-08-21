@@ -50,10 +50,6 @@ const messages = defineMessages({
   languageprofile: 'Language Profile',
   rootfolder: 'Root Folder',
   seriesType: 'Series Type',
-  animeSeriesType: 'Anime Series Type',
-  animequalityprofile: 'Anime Quality Profile',
-  animelanguageprofile: 'Anime Language Profile',
-  animerootfolder: 'Anime Root Folder',
   seasonfolders: 'Season Folders',
   server4k: '4K Server',
   serverAnime: 'Anime Server',
@@ -79,7 +75,6 @@ const messages = defineMessages({
   validationBaseUrlLeadingSlash: 'Base URL must have a leading slash',
   validationBaseUrlTrailingSlash: 'Base URL must not end in a trailing slash',
   tags: 'Tags',
-  animeTags: 'Anime Tags',
   notagoptions: 'No tags.',
   selecttags: 'Select tags',
 });
@@ -148,24 +143,6 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
     activeLanguageProfileId: Yup.number().required(
       intl.formatMessage(messages.validationLanguageProfileRequired)
     ),
-    activeAnimeRootFolder: Yup.string().when('isAnime', {
-      is: true,
-      then: Yup.string().required(
-        intl.formatMessage(messages.validationRootFolderRequired)
-      ),
-    }),
-    activeAnimeProfileId: Yup.string().when('isAnime', {
-      is: true,
-      then: Yup.string().required(
-        intl.formatMessage(messages.validationProfileRequired)
-      ),
-    }),
-    activeAnimeLanguageProfileId: Yup.string().when('isAnime', {
-      is: true,
-      then: Yup.string().required(
-        intl.formatMessage(messages.validationLanguageProfileRequired)
-      ),
-    }),
     externalUrl: Yup.string()
       .url(intl.formatMessage(messages.validationApplicationUrl))
       .test(
@@ -273,12 +250,7 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
           activeLanguageProfileId: sonarr?.activeLanguageProfileId,
           rootFolder: sonarr?.activeDirectory,
           seriesType: sonarr?.seriesType,
-          animeSeriesType: sonarr?.animeSeriesType,
-          activeAnimeProfileId: sonarr?.activeAnimeProfileId,
-          activeAnimeLanguageProfileId: sonarr?.activeAnimeLanguageProfileId,
-          activeAnimeRootFolder: sonarr?.activeAnimeDirectory,
           tags: sonarr?.tags ?? [],
-          animeTags: sonarr?.animeTags ?? [],
           isDefault: sonarr?.isDefault ?? false,
           is4k: sonarr?.is4k ?? false,
           isAnime: sonarr?.isAnime ?? false,
@@ -293,9 +265,6 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
           try {
             const profileName = testResponse.profiles.find(
               (profile) => profile.id === Number(values.activeProfileId)
-            )?.name;
-            const animeProfileName = testResponse.profiles.find(
-              (profile) => profile.id === Number(values.activeAnimeProfileId)
             )?.name;
 
             const submission = {
@@ -312,17 +281,7 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
               activeProfileName: profileName,
               activeDirectory: values.rootFolder,
               seriesType: values.seriesType,
-              animeSeriesType: values.animeSeriesType,
-              activeAnimeProfileId: values.activeAnimeProfileId
-                ? Number(values.activeAnimeProfileId)
-                : undefined,
-              activeAnimeLanguageProfileId: values.activeAnimeLanguageProfileId
-                ? Number(values.activeAnimeLanguageProfileId)
-                : undefined,
-              activeAnimeProfileName: animeProfileName ?? undefined,
-              activeAnimeDirectory: values.activeAnimeRootFolder,
               tags: values.tags,
-              animeTags: values.animeTags,
               is4k: values.is4k,
               isAnime: values.isAnime,
               isDefault: values.isDefault,
@@ -791,221 +750,6 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
                       onChange={(value: OnChangeValue<OptionType, true>) => {
                         setFieldValue(
                           'tags',
-                          value.map((option) => option.value)
-                        );
-                      }}
-                      noOptionsMessage={() =>
-                        intl.formatMessage(messages.notagoptions)
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label htmlFor="animeSeriesType" className="text-label">
-                    {intl.formatMessage(messages.animeSeriesType)}
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="animeSeriesType"
-                        name="animeSeriesType"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="standard">Standard</option>
-                        <option value="anime">Anime</option>
-                      </Field>
-                    </div>
-                  </div>
-                  {errors.animeSeriesType && touched.animeSeriesType && (
-                    <div className="error">{errors.animeSeriesType}</div>
-                  )}
-                </div>
-                <div className="form-row">
-                  <label htmlFor="activeAnimeProfileId" className="text-label">
-                    {intl.formatMessage(messages.animequalityprofile)}
-                    <span className="label-required">
-                      {values.isAnime ? '*' : ''}
-                    </span>
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="activeAnimeProfileId"
-                        name="activeAnimeProfileId"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="">
-                          {isTesting
-                            ? intl.formatMessage(messages.loadingprofiles)
-                            : !isValidated
-                            ? intl.formatMessage(
-                                messages.testFirstQualityProfiles
-                              )
-                            : intl.formatMessage(messages.selectQualityProfile)}
-                        </option>
-                        {testResponse.profiles.length > 0 &&
-                          testResponse.profiles.map((profile) => (
-                            <option
-                              key={`loaded-profile-${profile.id}`}
-                              value={profile.id}
-                            >
-                              {profile.name}
-                            </option>
-                          ))}
-                      </Field>
-                    </div>
-                    {errors.activeAnimeProfileId &&
-                      touched.activeAnimeProfileId && (
-                        <div className="error">
-                          {errors.activeAnimeProfileId}
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label htmlFor="activeAnimeRootFolder" className="text-label">
-                    {intl.formatMessage(messages.animerootfolder)}
-                    <span className="label-required">
-                      {values.isAnime ? '*' : ''}
-                    </span>
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="activeAnimeRootFolder"
-                        name="activeAnimeRootFolder"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="">
-                          {isTesting
-                            ? intl.formatMessage(messages.loadingrootfolders)
-                            : !isValidated
-                            ? intl.formatMessage(messages.testFirstRootFolders)
-                            : intl.formatMessage(messages.selectRootFolder)}
-                        </option>
-                        {testResponse.rootFolders.length > 0 &&
-                          testResponse.rootFolders.map((folder) => (
-                            <option
-                              key={`loaded-profile-${folder.id}`}
-                              value={folder.path}
-                            >
-                              {folder.path}
-                            </option>
-                          ))}
-                      </Field>
-                    </div>
-                    {errors.activeAnimeRootFolder &&
-                      touched.activeAnimeRootFolder && (
-                        <div className="error">
-                          {errors.activeAnimeRootFolder}
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label
-                    htmlFor="activeAnimeLanguageProfileId"
-                    className="text-label"
-                  >
-                    {intl.formatMessage(messages.animelanguageprofile)}
-                    <span className="label-required">
-                      {values.isAnime ? '*' : ''}
-                    </span>
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="activeAnimeLanguageProfileId"
-                        name="activeAnimeLanguageProfileId"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="">
-                          {isTesting
-                            ? intl.formatMessage(
-                                messages.loadinglanguageprofiles
-                              )
-                            : !isValidated
-                            ? intl.formatMessage(
-                                messages.testFirstLanguageProfiles
-                              )
-                            : intl.formatMessage(
-                                messages.selectLanguageProfile
-                              )}
-                        </option>
-                        {testResponse.languageProfiles.length > 0 &&
-                          testResponse.languageProfiles.map((language) => (
-                            <option
-                              key={`loaded-profile-${language.id}`}
-                              value={language.id}
-                            >
-                              {language.name}
-                            </option>
-                          ))}
-                      </Field>
-                    </div>
-                    {errors.activeAnimeLanguageProfileId &&
-                      touched.activeAnimeLanguageProfileId && (
-                        <div className="error">
-                          {errors.activeAnimeLanguageProfileId}
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label htmlFor="tags" className="text-label">
-                    {intl.formatMessage(messages.animeTags)}
-                  </label>
-                  <div className="form-input-area">
-                    <Select<OptionType, true>
-                      options={
-                        isValidated
-                          ? testResponse.tags.map((tag) => ({
-                              label: tag.label,
-                              value: tag.id,
-                            }))
-                          : []
-                      }
-                      isMulti
-                      isDisabled={!isValidated}
-                      placeholder={
-                        !isValidated
-                          ? intl.formatMessage(messages.testFirstTags)
-                          : isTesting
-                          ? intl.formatMessage(messages.loadingTags)
-                          : intl.formatMessage(messages.selecttags)
-                      }
-                      isLoading={isTesting}
-                      className="react-select-container"
-                      classNamePrefix="react-select"
-                      value={
-                        isTesting
-                          ? []
-                          : (values.animeTags
-                              .map((tagId) => {
-                                const foundTag = testResponse.tags.find(
-                                  (tag) => tag.id === tagId
-                                );
-
-                                if (!foundTag) {
-                                  return undefined;
-                                }
-
-                                return {
-                                  value: foundTag.id,
-                                  label: foundTag.label,
-                                };
-                              })
-                              .filter(
-                                (option) => option !== undefined
-                              ) as OptionType[])
-                      }
-                      onChange={(value) => {
-                        setFieldValue(
-                          'animeTags',
                           value.map((option) => option.value)
                         );
                       }}
