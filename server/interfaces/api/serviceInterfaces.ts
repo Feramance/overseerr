@@ -10,11 +10,7 @@ export interface ServiceCommonServer {
   activeProfileId: number;
   activeDirectory: string;
   activeLanguageProfileId?: number;
-  activeAnimeProfileId?: number;
-  activeAnimeDirectory?: string;
-  activeAnimeLanguageProfileId?: number;
   activeTags: number[];
-  activeAnimeTags?: number[];
 }
 
 export interface ServiceCommonServerWithDetails {

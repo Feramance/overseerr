@@ -1009,27 +1009,13 @@ export class MediaRequest {
 
         // Change series type to anime if the anime keyword is present on tmdb
         if (this.isAnime) {
-          seriesType = sonarrSettings.animeSeriesType ?? 'anime';
+          seriesType = 'anime';
         }
 
-        let rootFolder =
-          seriesType === 'anime' && sonarrSettings.activeAnimeDirectory
-            ? sonarrSettings.activeAnimeDirectory
-            : sonarrSettings.activeDirectory;
-        let qualityProfile =
-          seriesType === 'anime' && sonarrSettings.activeAnimeProfileId
-            ? sonarrSettings.activeAnimeProfileId
-            : sonarrSettings.activeProfileId;
-        let languageProfile =
-          seriesType === 'anime' && sonarrSettings.activeAnimeLanguageProfileId
-            ? sonarrSettings.activeAnimeLanguageProfileId
-            : sonarrSettings.activeLanguageProfileId;
-        let tags =
-          seriesType === 'anime'
-            ? sonarrSettings.animeTags
-              ? [...sonarrSettings.animeTags]
-              : []
-            : sonarrSettings.tags
+        let rootFolder = sonarrSettings.activeDirectory;
+        let qualityProfile = sonarrSettings.activeProfileId;
+        let languageProfile = sonarrSettings.activeLanguageProfileId;
+        let tags = sonarrSettings.tags
             ? [...sonarrSettings.tags]
             : [];
 
