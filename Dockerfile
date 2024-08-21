@@ -1,4 +1,4 @@
-FROM node:18.18-alpine AS BUILD_IMAGE
+FROM node:18.18-alpine AS build_image
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN CYPRESS_INSTALL_BINARY=0 yarn install --frozen-lockfile --network-timeout 10
 COPY . ./
 
 ARG COMMIT_TAG
-ENV COMMIT_TAG=${COMMIT_TAG}
+ENV COMMIT_TAG='homebrew'
 
 RUN yarn build
 
@@ -41,7 +41,7 @@ WORKDIR /app
 RUN apk add --no-cache tzdata tini && rm -rf /tmp/*
 
 # copy from build image
-COPY --from=BUILD_IMAGE /app ./
+COPY --from=build_image /app ./
 
 ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "yarn", "start" ]
