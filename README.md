@@ -12,6 +12,7 @@
 <a href="https://github.com/sct/overseerr/blob/develop/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/sct/overseerr"></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 <a href="#contributors-"><img alt="All Contributors" src="https://img.shields.io/badge/all_contributors-105-orange.svg"/></a>
+=======
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
