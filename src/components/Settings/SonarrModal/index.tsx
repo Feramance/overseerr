@@ -20,8 +20,12 @@ type OptionType = {
 const messages = defineMessages({
   createsonarr: 'Add New Sonarr Server',
   create4ksonarr: 'Add New 4K Sonarr Server',
+  createAnimesonarr: 'Add New Anime Sonarr Server',
+  create4kAnimesonarr: 'Add New 4K Anime Sonarr Server',
   editsonarr: 'Edit Sonarr Server',
   edit4ksonarr: 'Edit 4K Sonarr Server',
+  editAnimesonarr: 'Edit Anime Sonarr Server',
+  edit4kAnimesonarr: 'Edit 4K Anime Sonarr Server',
   validationNameRequired: 'You must provide a server name',
   validationHostnameRequired: 'You must provide a valid hostname or IP address',
   validationPortRequired: 'You must provide a valid port number',
@@ -34,6 +38,8 @@ const messages = defineMessages({
   add: 'Add Server',
   defaultserver: 'Default Server',
   default4kserver: 'Default 4K Server',
+  defaultAnimeserver: 'Default Anime Server',
+  default4kAnimeserver: 'Default 4K Anime Server',
   servername: 'Server Name',
   hostname: 'Hostname or IP Address',
   port: 'Port',
@@ -44,12 +50,9 @@ const messages = defineMessages({
   languageprofile: 'Language Profile',
   rootfolder: 'Root Folder',
   seriesType: 'Series Type',
-  animeSeriesType: 'Anime Series Type',
-  animequalityprofile: 'Anime Quality Profile',
-  animelanguageprofile: 'Anime Language Profile',
-  animerootfolder: 'Anime Root Folder',
   seasonfolders: 'Season Folders',
   server4k: '4K Server',
+  serverAnime: 'Anime Server',
   selectQualityProfile: 'Select quality profile',
   selectRootFolder: 'Select root folder',
   selectLanguageProfile: 'Select language profile',
@@ -72,7 +75,6 @@ const messages = defineMessages({
   validationBaseUrlLeadingSlash: 'Base URL must have a leading slash',
   validationBaseUrlTrailingSlash: 'Base URL must not end in a trailing slash',
   tags: 'Tags',
-  animeTags: 'Anime Tags',
   notagoptions: 'No tags.',
   selecttags: 'Select tags',
 });
@@ -119,6 +121,7 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
     name: Yup.string().required(
       intl.formatMessage(messages.validationNameRequired)
     ),
+    isAnime: Yup.boolean(),
     hostname: Yup.string()
       .required(intl.formatMessage(messages.validationHostnameRequired))
       .matches(
@@ -247,14 +250,10 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
           activeLanguageProfileId: sonarr?.activeLanguageProfileId,
           rootFolder: sonarr?.activeDirectory,
           seriesType: sonarr?.seriesType,
-          animeSeriesType: sonarr?.animeSeriesType,
-          activeAnimeProfileId: sonarr?.activeAnimeProfileId,
-          activeAnimeLanguageProfileId: sonarr?.activeAnimeLanguageProfileId,
-          activeAnimeRootFolder: sonarr?.activeAnimeDirectory,
           tags: sonarr?.tags ?? [],
-          animeTags: sonarr?.animeTags ?? [],
           isDefault: sonarr?.isDefault ?? false,
           is4k: sonarr?.is4k ?? false,
+          isAnime: sonarr?.isAnime ?? false,
           enableSeasonFolders: sonarr?.enableSeasonFolders ?? false,
           externalUrl: sonarr?.externalUrl,
           syncEnabled: sonarr?.syncEnabled ?? false,
@@ -266,9 +265,6 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
           try {
             const profileName = testResponse.profiles.find(
               (profile) => profile.id === Number(values.activeProfileId)
-            )?.name;
-            const animeProfileName = testResponse.profiles.find(
-              (profile) => profile.id === Number(values.activeAnimeProfileId)
             )?.name;
 
             const submission = {
@@ -285,18 +281,9 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
               activeProfileName: profileName,
               activeDirectory: values.rootFolder,
               seriesType: values.seriesType,
-              animeSeriesType: values.animeSeriesType,
-              activeAnimeProfileId: values.activeAnimeProfileId
-                ? Number(values.activeAnimeProfileId)
-                : undefined,
-              activeAnimeLanguageProfileId: values.activeAnimeLanguageProfileId
-                ? Number(values.activeAnimeLanguageProfileId)
-                : undefined,
-              activeAnimeProfileName: animeProfileName ?? undefined,
-              activeAnimeDirectory: values.activeAnimeRootFolder,
               tags: values.tags,
-              animeTags: values.animeTags,
               is4k: values.is4k,
+              isAnime: values.isAnime,
               isDefault: values.isDefault,
               enableSeasonFolders: values.enableSeasonFolders,
               externalUrl: values.externalUrl,
@@ -371,12 +358,22 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
               title={
                 !sonarr
                   ? intl.formatMessage(
-                      values.is4k
+                      values.isAnime && values.is4k
+                        ? messages.create4kAnimesonarr
+                        : values.isAnime
+                        ? messages.createAnimesonarr
+                        : values.is4k
                         ? messages.create4ksonarr
                         : messages.createsonarr
                     )
                   : intl.formatMessage(
-                      values.is4k ? messages.edit4ksonarr : messages.editsonarr
+                      values.isAnime && values.is4k
+                        ? messages.edit4kAnimesonarr
+                        : values.isAnime
+                        ? messages.editAnimesonarr
+                        : values.is4k
+                        ? messages.edit4ksonarr
+                        : messages.editsonarr
                     )
               }
             >
@@ -384,7 +381,11 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
                 <div className="form-row">
                   <label htmlFor="isDefault" className="checkbox-label">
                     {intl.formatMessage(
-                      values.is4k
+                      values.isAnime && values.is4k
+                        ? messages.default4kAnimeserver
+                        : values.isAnime
+                        ? messages.defaultAnimeserver
+                        : values.is4k
                         ? messages.default4kserver
                         : messages.defaultserver
                     )}
@@ -399,6 +400,14 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
                   </label>
                   <div className="form-input-area">
                     <Field type="checkbox" id="is4k" name="is4k" />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <label htmlFor="isAnime" className="checkbox-label">
+                    {intl.formatMessage(messages.serverAnime)}
+                  </label>
+                  <div className="form-input-area">
+                    <Field type="checkbox" id="isAnime" name="isAnime" />
                   </div>
                 </div>
                 <div className="form-row">
@@ -741,210 +750,6 @@ const SonarrModal = ({ onClose, sonarr, onSave }: SonarrModalProps) => {
                       onChange={(value: OnChangeValue<OptionType, true>) => {
                         setFieldValue(
                           'tags',
-                          value.map((option) => option.value)
-                        );
-                      }}
-                      noOptionsMessage={() =>
-                        intl.formatMessage(messages.notagoptions)
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label htmlFor="animeSeriesType" className="text-label">
-                    {intl.formatMessage(messages.animeSeriesType)}
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="animeSeriesType"
-                        name="animeSeriesType"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="standard">Standard</option>
-                        <option value="anime">Anime</option>
-                      </Field>
-                    </div>
-                  </div>
-                  {errors.animeSeriesType && touched.animeSeriesType && (
-                    <div className="error">{errors.animeSeriesType}</div>
-                  )}
-                </div>
-                <div className="form-row">
-                  <label htmlFor="activeAnimeProfileId" className="text-label">
-                    {intl.formatMessage(messages.animequalityprofile)}
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="activeAnimeProfileId"
-                        name="activeAnimeProfileId"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="">
-                          {isTesting
-                            ? intl.formatMessage(messages.loadingprofiles)
-                            : !isValidated
-                            ? intl.formatMessage(
-                                messages.testFirstQualityProfiles
-                              )
-                            : intl.formatMessage(messages.selectQualityProfile)}
-                        </option>
-                        {testResponse.profiles.length > 0 &&
-                          testResponse.profiles.map((profile) => (
-                            <option
-                              key={`loaded-profile-${profile.id}`}
-                              value={profile.id}
-                            >
-                              {profile.name}
-                            </option>
-                          ))}
-                      </Field>
-                    </div>
-                    {errors.activeAnimeProfileId &&
-                      touched.activeAnimeProfileId && (
-                        <div className="error">
-                          {errors.activeAnimeProfileId}
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label htmlFor="activeAnimeRootFolder" className="text-label">
-                    {intl.formatMessage(messages.animerootfolder)}
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="activeAnimeRootFolder"
-                        name="activeAnimeRootFolder"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="">
-                          {isTesting
-                            ? intl.formatMessage(messages.loadingrootfolders)
-                            : !isValidated
-                            ? intl.formatMessage(messages.testFirstRootFolders)
-                            : intl.formatMessage(messages.selectRootFolder)}
-                        </option>
-                        {testResponse.rootFolders.length > 0 &&
-                          testResponse.rootFolders.map((folder) => (
-                            <option
-                              key={`loaded-profile-${folder.id}`}
-                              value={folder.path}
-                            >
-                              {folder.path}
-                            </option>
-                          ))}
-                      </Field>
-                    </div>
-                    {errors.activeAnimeRootFolder &&
-                      touched.activeAnimeRootFolder && (
-                        <div className="error">{errors.rootFolder}</div>
-                      )}
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label
-                    htmlFor="activeAnimeLanguageProfileId"
-                    className="text-label"
-                  >
-                    {intl.formatMessage(messages.animelanguageprofile)}
-                  </label>
-                  <div className="form-input-area">
-                    <div className="form-input-field">
-                      <Field
-                        as="select"
-                        id="activeAnimeLanguageProfileId"
-                        name="activeAnimeLanguageProfileId"
-                        disabled={!isValidated || isTesting}
-                      >
-                        <option value="">
-                          {isTesting
-                            ? intl.formatMessage(
-                                messages.loadinglanguageprofiles
-                              )
-                            : !isValidated
-                            ? intl.formatMessage(
-                                messages.testFirstLanguageProfiles
-                              )
-                            : intl.formatMessage(
-                                messages.selectLanguageProfile
-                              )}
-                        </option>
-                        {testResponse.languageProfiles.length > 0 &&
-                          testResponse.languageProfiles.map((language) => (
-                            <option
-                              key={`loaded-profile-${language.id}`}
-                              value={language.id}
-                            >
-                              {language.name}
-                            </option>
-                          ))}
-                      </Field>
-                    </div>
-                    {errors.activeAnimeLanguageProfileId &&
-                      touched.activeAnimeLanguageProfileId && (
-                        <div className="error">
-                          {errors.activeAnimeLanguageProfileId}
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label htmlFor="tags" className="text-label">
-                    {intl.formatMessage(messages.animeTags)}
-                  </label>
-                  <div className="form-input-area">
-                    <Select<OptionType, true>
-                      options={
-                        isValidated
-                          ? testResponse.tags.map((tag) => ({
-                              label: tag.label,
-                              value: tag.id,
-                            }))
-                          : []
-                      }
-                      isMulti
-                      isDisabled={!isValidated}
-                      placeholder={
-                        !isValidated
-                          ? intl.formatMessage(messages.testFirstTags)
-                          : isTesting
-                          ? intl.formatMessage(messages.loadingTags)
-                          : intl.formatMessage(messages.selecttags)
-                      }
-                      isLoading={isTesting}
-                      className="react-select-container"
-                      classNamePrefix="react-select"
-                      value={
-                        isTesting
-                          ? []
-                          : (values.animeTags
-                              .map((tagId) => {
-                                const foundTag = testResponse.tags.find(
-                                  (tag) => tag.id === tagId
-                                );
-
-                                if (!foundTag) {
-                                  return undefined;
-                                }
-
-                                return {
-                                  value: foundTag.id,
-                                  label: foundTag.label,
-                                };
-                              })
-                              .filter(
-                                (option) => option !== undefined
-                              ) as OptionType[])
-                      }
-                      onChange={(value) => {
-                        setFieldValue(
-                          'animeTags',
                           value.map((option) => option.value)
                         );
                       }}

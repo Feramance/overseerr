@@ -5,15 +5,12 @@ export interface ServiceCommonServer {
   id: number;
   name: string;
   is4k: boolean;
+  isAnime: boolean;
   isDefault: boolean;
   activeProfileId: number;
   activeDirectory: string;
   activeLanguageProfileId?: number;
-  activeAnimeProfileId?: number;
-  activeAnimeDirectory?: string;
-  activeAnimeLanguageProfileId?: number;
   activeTags: number[];
-  activeAnimeTags?: number[];
 }
 
 export interface ServiceCommonServerWithDetails {
