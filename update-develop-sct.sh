@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Auto-update feature branch from upstream develop
+# Auto-rebase feature branch from upstream develop
 # Fork URL: https://github.com/Feramance/overseerr.git
 # Upstream URL: https://github.com/sct/overseerr.git
 # Feature branch: feature-default-anime-instance-checkbox
 
-set -e  # Exit on any error
+set -e
 
 FORK_REMOTE="origin"
 UPSTREAM_REMOTE="upstream"
@@ -16,14 +16,14 @@ BACKUP_BRANCH="backup-${FEATURE_BRANCH}"
 git remote | grep -q "$UPSTREAM_REMOTE" || git remote add $UPSTREAM_REMOTE https://github.com/sct/overseerr.git
 git remote | grep -q "$FORK_REMOTE" || git remote add $FORK_REMOTE https://github.com/Feramance/overseerr.git
 
-echo "⬇️ Fetching latest changes from all remotes..."
+echo "⬇️ Fetching latest changes..."
 git fetch $FORK_REMOTE
 git fetch $UPSTREAM_REMOTE
 
 # 2️⃣ Checkout feature branch
 git checkout $FEATURE_BRANCH
 
-# 3️⃣ Create backup branch if it doesn't exist
+# 3️⃣ Create backup branch if not exists
 if git show-ref --verify --quiet refs/heads/$BACKUP_BRANCH; then
     echo "⚠️ Backup branch $BACKUP_BRANCH already exists. Skipping backup creation."
 else
@@ -32,21 +32,21 @@ else
     git checkout $FEATURE_BRANCH
 fi
 
-# 4️⃣ Merge upstream develop into feature branch
-echo "🔧 Merging changes from upstream develop into $FEATURE_BRANCH..."
-git merge $UPSTREAM_REMOTE/develop --no-ff -m "Merge upstream develop into $FEATURE_BRANCH"
-
-# 5️⃣ Detect conflicts
-if ! git diff --check | grep -q '^'; then
-    echo "✅ Merge completed without conflicts."
+# 4️⃣ Rebase feature branch onto upstream develop
+echo "🔧 Rebasing $FEATURE_BRANCH onto upstream/develop..."
+if git rebase $UPSTREAM_REMOTE/develop; then
+    echo "✅ Rebase completed successfully."
 else
-    echo "⚠️ Merge has conflicts! Resolve them manually, then commit."
-    echo "   After resolving, run: git commit (if needed) and then git push $FORK_REMOTE $FEATURE_BRANCH"
+    echo "⚠️ Rebase encountered conflicts! Resolve them manually:"
+    echo "   1. git status"
+    echo "   2. edit conflicted files"
+    echo "   3. git add <resolved_files>"
+    echo "   4. git rebase --continue"
     exit 1
 fi
 
-# 6️⃣ Push updated feature branch to your fork
-echo "📤 Pushing updated $FEATURE_BRANCH to your fork..."
-git push $FORK_REMOTE $FEATURE_BRANCH
+# 5️⃣ Push updated branch to your fork (force required for rebase)
+echo "📤 Pushing updated branch to your fork..."
+git push -f $FORK_REMOTE $FEATURE_BRANCH
 
-echo "🎉 Feature branch is now updated with upstream develop!"
+echo "🎉 Feature branch successfully rebased with upstream develop!"
