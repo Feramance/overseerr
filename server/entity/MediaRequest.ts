@@ -1180,44 +1180,33 @@ export class MediaRequest {
 
     try {
       const mediaType = this.type === MediaType.MOVIE ? 'Movie' : 'Series';
+      const prefix = this.isAnime ? 'Anime ' : this.is4k ? '4K ' : '';
       let event: string | undefined;
       let notifyAdmin = true;
       let notifySystem = true;
 
       switch (type) {
         case Notification.MEDIA_APPROVED:
-          event = `${
-            this.isAnime ? 'Anime ' : this.is4k ? '4K ' : ''
-          }${mediaType} Request Approved`;
+          event = `${prefix}${mediaType}Request Approved`;
           notifyAdmin = false;
           break;
         case Notification.MEDIA_DECLINED:
-          event = `${
-            this.isAnime ? 'Anime ' : this.is4k ? '4K ' : ''
-          }${mediaType} Request Declined`;
+          event = `${prefix}${mediaType}Request Declined`;
           notifyAdmin = false;
           break;
         case Notification.MEDIA_PENDING:
-          event = `New ${
-            this.isAnime ? 'Anime ' : this.is4k ? '4K ' : ''
-          }${mediaType} Request`;
+          event = `New ${prefix}${mediaType}Request`;
           break;
         case Notification.MEDIA_AUTO_REQUESTED:
-          event = `${
-            this.isAnime ? 'Anime ' : this.is4k ? '4K ' : ''
-          }${mediaType} Request Automatically Submitted`;
+          event = `${prefix}${mediaType}Request Automatically Submitted`;
           notifyAdmin = false;
           notifySystem = false;
           break;
         case Notification.MEDIA_AUTO_APPROVED:
-          event = `${
-            this.isAnime ? 'Anime ' : this.is4k ? '4K ' : ''
-          }${mediaType} Request Automatically Approved`;
+          event = `${prefix}${mediaType}Request Automatically Approved`;
           break;
         case Notification.MEDIA_FAILED:
-          event = `${
-            this.isAnime ? 'Anime ' : this.is4k ? '4K ' : ''
-          }${mediaType} Request Failed`;
+          event = `${prefix}${mediaType}Request Failed`;
           break;
       }
 
