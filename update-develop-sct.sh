@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Smart update of feature branch from upstream develop
-# Only prompts for conflicts on files modified in the feature branch
+# Smart update + PR creation
 # Fork URL: https://github.com/Feramance/overseerr.git
 # Upstream URL: https://github.com/sct/overseerr.git
 # Feature branch: feature-default-anime-instance-checkbox
@@ -12,6 +11,14 @@ FORK_REMOTE="origin"
 UPSTREAM_REMOTE="upstream"
 FEATURE_BRANCH="feature-default-anime-instance-checkbox"
 BACKUP_BRANCH="backup-${FEATURE_BRANCH}"
+PR_TITLE="Update $FEATURE_BRANCH with upstream develop"
+PR_BODY="This PR merges changes from upstream develop into $FEATURE_BRANCH using smart merge."
+
+# Ensure GitHub CLI is installed
+if ! command -v gh &> /dev/null; then
+    echo "❌ GitHub CLI 'gh' is not installed. Install it to create PRs automatically."
+    exit 1
+fi
 
 # 1️⃣ Ensure remotes exist
 git remote | grep -q "$UPSTREAM_REMOTE" || git remote add $UPSTREAM_REMOTE https://github.com/sct/overseerr.git
@@ -33,13 +40,12 @@ else
     git checkout $FEATURE_BRANCH
 fi
 
-# 4️⃣ Identify files changed in feature branch vs upstream develop
-echo "🔍 Determining files changed in feature branch..."
-CHANGED_FILES=$(git diff --name-only $UPSTREAM_REMOTE/develop..$FEATURE_BRANCH)
-
-# 5️⃣ Merge with 'ours' for files not changed in feature branch
+# 4️⃣ Smart merge
 echo "🔧 Merging upstream develop smartly..."
 git merge --no-commit $UPSTREAM_REMOTE/develop || true
+
+# Identify files changed in feature branch
+CHANGED_FILES=$(git diff --name-only $UPSTREAM_REMOTE/develop..$FEATURE_BRANCH)
 
 # Auto-resolve files not modified in feature branch
 for file in $(git diff --name-only --diff-filter=U); do
@@ -50,20 +56,24 @@ for file in $(git diff --name-only --diff-filter=U); do
     fi
 done
 
-# Commit merge (manual resolution needed only for true conflicts)
+# Commit merge
 if git diff --check | grep -q '^'; then
-    echo "⚠️ Merge has conflicts in files you modified. Resolve them manually:"
-    echo "   1. git status"
-    echo "   2. edit conflicted files"
-    echo "   3. git add <resolved_files>"
-    echo "   4. git commit"
+    echo "⚠️ Merge has conflicts in files you modified. Resolve them manually and commit."
     exit 1
 else
-    git commit -m "Merge upstream develop into $FEATURE_BRANCH (smart merge, auto-resolved unmodified files)"
+    git commit -m "Merge upstream develop into $FEATURE_BRANCH (smart merge)"
 fi
 
-# 6️⃣ Push updated branch
-echo "📤 Pushing updated branch to your fork..."
+# 5️⃣ Push updated branch
 git push $FORK_REMOTE $FEATURE_BRANCH
 
-echo "🎉 Feature branch updated with upstream develop!"
+# 6️⃣ Create Pull Request using GitHub CLI
+echo "📤 Creating Pull Request..."
+gh pr create \
+    --repo "Feramance/overseerr" \
+    --head "$FEATURE_BRANCH" \
+    --base "$FEATURE_BRANCH" \
+    --title "$PR_TITLE" \
+    --body "$PR_BODY"
+
+echo "🎉 Pull Request created successfully!"
